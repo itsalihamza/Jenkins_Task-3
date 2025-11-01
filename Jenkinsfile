@@ -9,14 +9,19 @@ pipeline {
                     def currentTime = new Date().format("yyyy-MM-dd HH:mm:ss", TimeZone.getTimeZone('UTC'))
                     echo "Triggered at: ${currentTime} UTC"
 
-                    if (currentBuild.rawBuild.getCauses().toString().contains("Push event")) {
-                        echo "Triggered by GitHub Webhook ✅"
+                    // Script-security prevents calling `getCauses()` in the sandbox.
+                    // Use environment heuristics instead. If you need exact cause detection,
+                    // ask an administrator to approve the use of `getCauses()` in Script Approval.
+                    def triggeredBySCM = (env.GIT_COMMIT != null && env.GIT_COMMIT != '')
+                    if (triggeredBySCM) {
+                        echo "Triggered by SCM change (commit/webhook) ✅"
                     } else {
-                        echo "Triggered manually 🖐️"
+                        echo "Triggered manually or unknown 🖐️"
                     }
                 }
 
-                git branch: 'main', url: 'https://github.com/noorulain-nn/task.git'
+                // Use the repository for this project
+                git branch: 'main', url: 'https://github.com/itsalihamza/Jenkins_Task-3.git'
             }
         }
 
